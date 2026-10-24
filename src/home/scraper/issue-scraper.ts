@@ -1,3 +1,4 @@
+import { buildDeveloperMatchProfile, saveDeveloperMatchProfile } from "../matching/developer-profile.ts";
 import { checkSupabaseSession } from "../rendering/render-github-login-button.ts";
 
 async function fetchWithRetry(input: RequestInfo, init?: RequestInit, retries: number = 3): Promise<Response> {
@@ -68,6 +69,10 @@ export async function startIssueScraper(username: string) {
 
     if (response.status === 200 && responseData?.success) {
       localStorage.setItem(lastFetchKey, now.toString());
+      if (Array.isArray(responseData.issues)) {
+        const profile = buildDeveloperMatchProfile(responseData.issues, now);
+        saveDeveloperMatchProfile(profile);
+      }
       return JSON.stringify({
         success: true,
         message: "Successfully fetched issues",
